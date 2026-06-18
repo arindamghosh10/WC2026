@@ -21,6 +21,11 @@
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { NextResponse } from 'next/server'
 
+// Force this route to be evaluated only at request time, never during
+// the build's static page collection — it depends on live env vars and
+// external API calls, neither of which should run at build time.
+export const dynamic = 'force-dynamic'
+
 const API_KEY = process.env.FOOTBALL_API_KEY
 const BASE_URL = 'https://api.football-data.org/v4'
 const WC_ID = 2000  // football-data.org competition ID for FIFA World Cup
