@@ -42,7 +42,19 @@ async function fetchFromAPI(path) {
   return res.json()
 }
 
-export async function GET() {
+export async function GET(request) {
+  // ── Simple auth: require a secret token, so random visitors/bots on
+  //    the internet can't repeatedly trigger this and burn your
+  //    football-data.org request quota. Your scheduler (cron-job.org)
+  //    sends this same secret as a query param or header — see README.
+  const { searchParams } = new URL(request.url)
+  const providedSecret = searchParams.get('secret') ?? request.headers.get('x-sync-secret')
+  const expectedSecret = process.env.SYNC_SECRET
+
+  if (expectedSecret && providedSecret !== expectedSecret) {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+  }
+
   const admin = getSupabaseAdmin()
   const result = {}
 
